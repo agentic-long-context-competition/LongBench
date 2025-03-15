@@ -2,15 +2,15 @@ import os
 import json
 import argparse
 import asyncio
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Type
 
 from tqdm import tqdm
 from datasets import load_dataset
 from dotenv import load_dotenv
 from openai_client_plusplus import AsyncOpenAIPlusPlus
 
-# Import the agent module
-from agents.oneshot import run_agent
+# Import agent registry and types
+from agents import get_agent, list_agents, AgentProtocol
 from specified_id_orderings import shuffled_ids, ids_ordered_by_context_length
 
 # ANSI color codes for colored output
@@ -41,27 +41,31 @@ async def process_single_item(
     item: Dict[str, Any], 
     output_file: str, 
     semaphore: asyncio.Semaphore,
+    agent_class: Type[AgentProtocol],
     enable_logging: bool = False,
     save_dir: str = "results"
 ) -> Dict[str, Any]:
     """
-    Process a single data item with the agent.
+    Process a single data item with the specified agent.
     
     Args:
         item: The data item to process
         output_file: Path to the output file
         semaphore: Semaphore for controlling concurrency
+        agent_class: The agent implementation to use
         enable_logging: Whether to enable logging
         save_dir: Directory to save results and logs
         
     Returns:
         The processed result
     """
-    # Create the OpenAI client wrapper
+    # Create the OpenAI client wrapper with agent-specific log file in requests subfolder
+    requests_dir = os.path.join(save_dir, "requests")
+    os.makedirs(requests_dir, exist_ok=True)
     client = AsyncOpenAIPlusPlus(
         request_id=f"{item['_id']}", 
         logging_enabled=enable_logging, 
-        log_file_path=os.path.join(save_dir, f"requests.jsonl"),
+        log_file_path=os.path.join(requests_dir, f"{agent_class.name}.jsonl"),
         semaphore=semaphore
     )
     
@@ -77,7 +81,7 @@ async def process_single_item(
         }
         
         # Run the agent
-        prediction = await run_agent(question, context, choices, client)
+        prediction = await agent_class.run(question, context, choices, client)
         
         # Create result with token usage
         result = {
@@ -95,12 +99,14 @@ async def process_single_item(
             'choice_C': item['choice_C'],
             'choice_D': item['choice_D'],
             'context': item['context'][:1000],  # Truncate context to 1000 characters
+            'agent': agent_class.name  # Add agent name to result
         }
         
     except Exception as e:
         result = {
             '_id': item['_id'],
             'error': str(e),
+            'agent': agent_class.name  # Include agent name even for errors
         }
     
     # Write the result
@@ -110,7 +116,8 @@ async def process_single_item(
 
 async def process_with_agent(
     data_subset: List[Dict[str, Any]],
-    output_file: str, 
+    output_file: str,
+    agent_class: Type[AgentProtocol],
     max_concurrent: int = 5,
     enable_logging: bool = False,
     save_dir: str = "results"
@@ -123,11 +130,12 @@ async def process_with_agent(
     Args:
         data_subset: The data subset to process
         output_file: Path to the output file
+        agent_class: The agent implementation to use
         max_concurrent: Maximum number of concurrent operations
         enable_logging: Whether to enable logging for OpenAI client wrappers
         save_dir: Directory to save results and logs
     """
-    print(f"Processing {len(data_subset)} items with max concurrency of {max_concurrent}")
+    print(f"Processing {len(data_subset)} items with agent '{agent_class.name}' and max concurrency of {max_concurrent}")
     
     # Create semaphore for controlled concurrency
     semaphore = asyncio.Semaphore(max_concurrent)
@@ -136,7 +144,7 @@ async def process_with_agent(
     tasks = []
     for i, item in enumerate(data_subset):
         task = asyncio.create_task(
-            process_single_item(item, output_file, semaphore, enable_logging, save_dir)
+            process_single_item(item, output_file, semaphore, agent_class, enable_logging, save_dir)
         )
         tasks.append((i, task))
     
@@ -176,7 +184,7 @@ async def process_with_agent(
                 counters['written'] += 1
                 if 'error' in result:
                     counters['api_errors'] += 1
-                elif result.get('correct', False):
+                elif result.get('judge', False):
                     counters['correct'] += 1
                 else:
                     counters['incorrect'] += 1
@@ -241,10 +249,20 @@ async def async_main(args) -> None:
     Args:
         args: Command line arguments
     """
-    # Create output directory
-    os.makedirs(args.save_dir, exist_ok=True)
-    out_file = os.path.join(args.save_dir, f"predictions.jsonl")
-    log_file = os.path.join(args.save_dir, f"requests.jsonl")
+    # Get the agent class to use
+    try:
+        agent_class = get_agent(args.agent)
+    except KeyError as e:
+        print(f"{RED}{str(e)}{RESET}")
+        return
+        
+    # Set up directories and file paths
+    requests_dir = os.path.join(args.save_dir, "requests")
+    os.makedirs(requests_dir, exist_ok=True)
+    
+    # Use agent-specific output files
+    out_file = os.path.join(args.save_dir, f"{agent_class.name}.jsonl")
+    log_file = os.path.join(requests_dir, f"{agent_class.name}.jsonl")
     
     # Check if output files already exist
     files_exist = False
@@ -278,6 +296,7 @@ async def async_main(args) -> None:
     await process_with_agent(
         data_all, 
         out_file, 
+        agent_class,
         args.max_concurrent, 
         args.logging,
         args.save_dir
@@ -288,7 +307,19 @@ def main() -> None:
     """
     Entry point for the script.
     """
+    # List available agents
+    available_agents = list_agents()
+    agent_names = [a["name"] for a in available_agents]
+    agent_descriptions = "\n".join([f"  - {a['name']}: {a['description']}" for a in available_agents])
+    
     parser = argparse.ArgumentParser(description="Process data with an agent")
+    parser.add_argument(
+        "--agent",
+        type=str,
+        default="oneshot",
+        choices=agent_names,
+        help=f"Agent to use for processing.\nAvailable agents:\n{agent_descriptions}"
+    )
     parser.add_argument(
         "--processing_order", 
         type=str, 

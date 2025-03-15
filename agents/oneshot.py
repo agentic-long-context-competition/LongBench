@@ -2,9 +2,15 @@ import re
 from typing import Dict
 from openai import AsyncOpenAI
 
-async def run_agent(question: str, context: str, choices: Dict[str, str], client: AsyncOpenAI) -> str:
-    """Process a question with context and choices; returns predicted answer (A, B, C, D, or N)."""
-    prompt = f"""Please read the following text and answer the question below.
+class OneshotAgent:
+    """Basic oneshot agent implementation."""
+    name = "oneshot"
+    description = "Simple one-shot prompting agent"
+    
+    @staticmethod
+    async def run(question: str, context: str, choices: Dict[str, str], client: AsyncOpenAI) -> str:
+        """Process a question with context and choices; returns predicted answer (A, B, C, D, or N)."""
+        prompt = f"""Please read the following text and answer the question below.
 
 <text>
 {context.strip()}
@@ -18,14 +24,17 @@ Choices:
 (D) {choices['choice_D'].strip()}
 
 Format your response as follows: "The correct answer is (insert answer here)"."""
-    
-    response = await client.chat_completion(
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.1,
-        max_tokens=128
-    )
-    
-    return extract_answer(response.choices[0].message.content)
+        
+        response = await client.chat_completion(
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
+            max_tokens=128
+        )
+        
+        return extract_answer(response.choices[0].message.content)
+
+# For backward compatibility
+run_agent = OneshotAgent.run
 
 def extract_answer(response: str) -> str:
     """Extract the answer (A, B, C, D) from response text or return N if not found."""
