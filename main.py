@@ -133,9 +133,9 @@ async def process_with_agent(
         enable_logging: Whether to enable logging for OpenAI client wrappers
         save_dir: Directory to save results and logs
     """
-    print(f"Processing {len(data_subset)} items with agent '{agent_class.name}' and max concurrency of {max_concurrent}")
+    print(f"Processing {len(data_subset)} items with agent '{agent_class.name}' and limit of {max_concurrent} concurrent API calls")
     
-    # Create semaphore for controlled concurrency
+    # Create semaphore for controlled concurrency (of API calls)
     semaphore = asyncio.Semaphore(max_concurrent)
     
     # Create tasks for each item
