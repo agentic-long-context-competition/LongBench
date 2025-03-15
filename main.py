@@ -109,8 +109,6 @@ async def process_single_item(
             'agent': agent_class.name  # Include agent name even for errors
         }
     
-    # Write the result
-    await write_result(output_file, result)
     return result
 
 
@@ -180,7 +178,8 @@ async def process_with_agent(
             # Write all consecutive results starting from next_to_write
             while next_to_write in completed_results:
                 result = completed_results[next_to_write]
-                # Result is already written in process_single_item
+                # Write result in order here
+                await write_result(output_file, result)
                 counters['written'] += 1
                 if 'error' in result:
                     counters['api_errors'] += 1
