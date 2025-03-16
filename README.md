@@ -16,7 +16,7 @@ To submit an entry,
  - Add a new agent as below. IMPORTANT: Only use the API client passed to the run method. This enforces the allowed models (and sets a default model), tracks token usage, limits concurrency, implements backoff logic...
  - for the final evaluation, use `python main.py --max_concurrent 50 --agent cot --delete-old --logging --max_entries -1`,
  - run `python result.py` to generate summary statistics
- - upload your results (logs and results) to huggingface
+ - (optional for now) upload your results (logs and results) to huggingface
  - submit a PR with your results
 
 The file `specified_id_orderings.py` contains two orderings of the dataset IDs -- by context length in characters, and a random shuffling. These serve as Schelling points: If you only want to evaluate some of the entries for cost reasons, your results and those of other people will still be comparable.
