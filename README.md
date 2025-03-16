@@ -42,16 +42,16 @@ Put an `OPENAI_API_KEY` in .env or the environment variables.
 
 ### Running Evaluation
 
-For testing an agent (running only on the shortest 50 entries):
+For testing an agent (running only on the shortest 50 entries by default):
 
 ```bash
-python main.py --agent cot --max_concurrent 50
+python main.py --agent cot --max_concurrent 20 # change max_concurrent according to your resources
 ```
 
 To run the final evaluation (on all 503 entries) with the default agent:
 
 ```bash
-python main.py --max_concurrent 50 --agent oneshot --delete-old --logging --max_entries -1
+python main.py --max_concurrent 20 --agent oneshot --delete-old --logging --max_entries -1
 ```
 
 Available agents:
