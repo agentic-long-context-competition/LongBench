@@ -3,3 +3,5 @@ datasets
 python-dotenv
 openai
 backoff
+# only needed for upload_to_hf
+huggingface_hub

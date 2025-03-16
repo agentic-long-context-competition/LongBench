@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 import os
-import glob
 from dotenv import load_dotenv
-from huggingface_hub import HfApi, create_repo, Repository
-import argparse
+from huggingface_hub import HfApi, create_repo
 from pathlib import Path
 
 def upload_to_huggingface():
