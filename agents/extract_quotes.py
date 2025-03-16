@@ -1,4 +1,3 @@
-import re
 from typing import Dict
 from openai import AsyncOpenAI
 from .oneshot import extract_answer

@@ -2,11 +2,10 @@ import os
 import json
 import argparse
 import asyncio
-from typing import List, Dict, Any, Optional, Tuple, Type
+from typing import List, Dict, Any, Type
 
 from tqdm import tqdm
 from datasets import load_dataset
-from dotenv import load_dotenv
 from openai_client_plusplus import AsyncOpenAIPlusPlus
 
 # Import agent registry and types

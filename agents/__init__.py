@@ -5,6 +5,11 @@ This module provides a registry system for agent implementations.
 """
 from typing import Dict, Type, List, Protocol
 from openai import AsyncOpenAI
+# Import agent implementations
+from .oneshot import OneshotAgent
+from .chain_of_thought import ChainOfThoughtAgent
+from .extract_quotes import ExtractQuotesAgent
+
 
 # Define the agent protocol that all agents must implement
 class AgentProtocol(Protocol):
@@ -13,12 +18,6 @@ class AgentProtocol(Protocol):
     async def run(question: str, context: str, choices: Dict[str, str], client: AsyncOpenAI) -> str:
         """Process a question with context and choices; returns predicted answer (A, B, C, D, or N)."""
         ...
-
-# Import agent implementations
-from .oneshot import OneshotAgent
-from .chain_of_thought import ChainOfThoughtAgent
-from .extract_quotes import ExtractQuotesAgent
-
 # Registry of available agents
 AGENT_REGISTRY: Dict[str, Type[AgentProtocol]] = {
     OneshotAgent.name: OneshotAgent,

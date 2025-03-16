@@ -1,4 +1,3 @@
-import os
 import openai
 from openai import AsyncOpenAI
 import backoff
