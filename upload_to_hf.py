@@ -1,8 +1,28 @@
 #!/usr/bin/env python3
 import os
+import subprocess
 from dotenv import load_dotenv
 from huggingface_hub import HfApi, create_repo
 from pathlib import Path
+
+def get_current_git_commit():
+    """Get the shortened commit ID of the currently active branch."""
+    try:
+        # Run git command to get the shortened commit hash
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        commit_id = result.stdout.strip()
+        return commit_id
+    except subprocess.CalledProcessError as e:
+        print(f"Error getting git commit ID: {e}")
+        return None
+    except FileNotFoundError:
+        print("Git command not found. Make sure git is installed.")
+        return None
 
 def upload_to_huggingface():
     # Load environment variables from .env file
@@ -37,6 +57,11 @@ def upload_to_huggingface():
     # Properly format the repository ID as username/repo-name
     repo_id = f"{hf_username}/{repo_name}"
     
+    # Get current git commit ID for commit message
+    commit_id = get_current_git_commit()
+    # Get base commit message prefix - will add file path in the upload loop
+    commit_prefix = f"Update from github (commit id) {commit_id}" if commit_id else "update"
+    
     # Try to create the repository, handle the case if it already exists
     print(f"Checking/creating repository: {repo_id}")
     try:
@@ -66,9 +91,12 @@ def upload_to_huggingface():
         if file_path.is_file():
             files_to_upload.append(str(file_path))
     
-    # Upload files to Hugging Face
+    # Upload files to Hugging Face with custom commit message
     for file_path in files_to_upload:
         relative_path = os.path.relpath(file_path, start=".")
+        # Create a commit message that includes both the git commit ID and file path
+        file_commit_message = f"{commit_prefix} - {relative_path}"
+        
         print(f"Uploading {relative_path}")
         api.upload_file(
             path_or_fileobj=file_path,
@@ -76,9 +104,12 @@ def upload_to_huggingface():
             repo_id=repo_id,
             repo_type="dataset",
             token=hf_token,
+            commit_message=file_commit_message,
         )
     
     print(f"Upload complete! Repository available at: https://huggingface.co/datasets/{repo_id}")
+    if commit_id:
+        print(f"Files were uploaded with commit messages including git commit ID: '{commit_id}'")
 
 if __name__ == "__main__":
     upload_to_huggingface() 
