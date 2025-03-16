@@ -1,11 +1,11 @@
 # LongBench2 Competition Framework
 
-This repository contains a flexible framework for evaluating multiple agent strategies on the LongBench v2 dataset. The idea is to fix the model (for now, to 4o-mini) and see how good one can make this model perform just by improved scaffolding. This is to let different approaches stay comparable as new models get released.
+This repository contains a flexible framework for evaluating multiple agent strategies on the LongBench v2 dataset, keeping track of total token usage. The idea is to fix the model (for now, to 4o-mini) and see how good one can make this model perform just by improved scaffolding. This is to let different approaches stay comparable as new models get released.
 
 To submit an entry, submit a PR according to the rules below.
 
 RULES:
- - only 4o-mini and embeddings for now (scope is to compare different agentic scaffolding, not different foundation models or effect of finetuning)
+ - only 4o-mini and embeddings for now (scope is to compare different agentic scaffolding, not different foundation models or effect of finetuning). If there is interest, I may add a smarter model where the tokens are weighted accordingly (e.g. 4o where tokens count 15x as much as 4o-mini tokens, which reflects the pricing ratio)
  - allowed: just implementing a research paper, slightly modifying other submission
  - source code must become accessible in the repository (please submit a PR)
  - a query can use at most 10 times as many total tokens for each entry as a one-shot query would use (see results/oneshot.jsonl for token statistics)
@@ -13,7 +13,7 @@ RULES:
 
 To submit an entry,
 
- - Add a new agent as below. IMPORTANT: Only use the API client passed to the run method. This fixes the model, tracks token usage, limits concurrency, implements backoff logic...
+ - Add a new agent as below. IMPORTANT: Only use the API client passed to the run method. This enforces the allowed models (and sets a default model), tracks token usage, limits concurrency, implements backoff logic...
  - for the final evaluation, use `python main.py --max_concurrent 50 --agent cot --delete-old --logging --max_entries -1`,
  - run `python result.py` to generate summary statistics
  - upload your results (logs and results) to huggingface
