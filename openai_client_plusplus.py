@@ -132,7 +132,7 @@ class AsyncOpenAIPlusPlus(AsyncOpenAI):
             return self.token_usage
 
 # Export the client class for use in other modules
-__all__ = ['OpenAIClientWrapper']
+__all__ = ['AsyncOpenAIPlusPlus']
 
 # Example usage (commented out)
 '''
