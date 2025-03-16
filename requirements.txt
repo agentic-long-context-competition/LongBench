@@ -1,0 +1,5 @@
+tqdm
+datasets
+python-dotenv
+openai
+backoff
