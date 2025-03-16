@@ -10,7 +10,7 @@ RULES:
  - only 4o-mini and embeddings for now (scope is to compare different agentic scaffolding, not different foundation models or effect of finetuning). If there is interest, I may add a smarter model where the tokens are weighted accordingly (e.g. 4o where tokens count 15x as much as 4o-mini tokens, which reflects the pricing ratio)
  - allowed: just implementing a research paper, slightly modifying other submission
  - source code must become accessible in the repository (please submit a PR)
- - a query can use at most 10 times as many total tokens for each entry as a one-shot query would use (see results/oneshot.jsonl for token statistics)
+ - an agent can use at most 10 times as many total tokens for each entry as a one-shot query would use (see results/oneshot.jsonl for token statistics)
  - no hardcoding answers or similar up to my discretion (duh)
 
 To submit an entry,
