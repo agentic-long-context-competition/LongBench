@@ -9,7 +9,7 @@ from openai import AsyncOpenAI
 from .oneshot import OneshotAgent
 from .chain_of_thought import ChainOfThoughtAgent
 from .extract_quotes import ExtractQuotesAgent
-
+from .quotes_chunked import QuotesChunkedAgent
 
 # Define the agent protocol that all agents must implement
 class AgentProtocol(Protocol):
@@ -23,6 +23,7 @@ AGENT_REGISTRY: Dict[str, Type[AgentProtocol]] = {
     OneshotAgent.name: OneshotAgent,
     ChainOfThoughtAgent.name: ChainOfThoughtAgent,
     ExtractQuotesAgent.name: ExtractQuotesAgent,
+    QuotesChunkedAgent.name: QuotesChunkedAgent,
 }
 
 def register_agent(agent_class: Type[AgentProtocol]) -> None:
