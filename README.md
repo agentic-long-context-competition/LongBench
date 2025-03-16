@@ -1,6 +1,6 @@
 # LongBench2 Competition Framework
 
-This repository contains a flexible framework for evaluating multiple agent strategies on the LongBench v2 dataset, keeping track of total token usage. The idea is to fix the model (for now, to 4o-mini) and see how good one can make this model perform just by improved scaffolding. This is to let different approaches stay comparable as new models get released.
+This repository contains a flexible framework for evaluating multiple agent strategies on the LongBench v2 dataset (evaluation benchmark for long-context understanding, see [here](https://longbench2.github.io/)), keeping track of total token usage. The idea is to fix the model (for now, to 4o-mini) and see how good one can make this model perform just by improved scaffolding. This is to let different approaches stay comparable as new models get released.
 
 To submit an entry, submit a PR according to the rules below.
 
