@@ -4,7 +4,7 @@ This repository contains a flexible framework for evaluating multiple agent stra
 
 To submit an entry, submit a PR according to the rules below.
 
-The performance of the current sample agents is summarized in `result.txt`. The 191 errors are API errors, they come from the fact that they don't try to subdivide texts in anyway, so longer examples do not fit into the context window of 4o-mini. `python result.py` generates such summary statistics from the result files in `results/`.
+The performance of the current sample agents is summarized in `results/result.txt`. The 191 errors are API errors, they come from the fact that they don't try to subdivide texts in anyway, so longer examples do not fit into the context window of 4o-mini. `python result.py` generates such summary statistics from the result files in `results/`.
 
 RULES:
  - only 4o-mini and embeddings for now (scope is to compare different agentic scaffolding, not different foundation models or effect of finetuning). If there is interest, I may add a smarter model where the tokens are weighted accordingly (e.g. 4o where tokens count 15x as much as 4o-mini tokens, which reflects the pricing ratio)

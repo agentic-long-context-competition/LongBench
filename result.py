@@ -108,8 +108,8 @@ def main():
     parser.add_argument(
         "--output",
         type=str,
-        default="result.txt",
-        help="Output file path (default: result.txt)"
+        default="results/result.txt",
+        help="Output file path (default: results/result.txt)"
     )
     parser.add_argument(
         "--compensated",
@@ -154,6 +154,11 @@ def main():
         output.append(f"{name}\t{results['overall']}\t{results['easy']}\t{results['hard']}\t{results['short']}\t{results['medium']}\t{results['long']}\t{results['error_count']}")
 
     # Write results to output file
+    # Ensure output directory exists
+    output_dir = os.path.dirname(args.output)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        
     with open(args.output, 'w', encoding='utf-8') as f:
         f.write('\n'.join(output))
 
