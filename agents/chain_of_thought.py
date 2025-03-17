@@ -33,7 +33,7 @@ Take your time to think through this step by step:
 
 After explaining your thought process, provide your final answer in this format: "The correct answer is (insert answer here)"."""
         
-        response = await client.chat_completion(
+        response = await client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
             temperature=0.1,
             max_tokens=1024  # Increased token limit for longer reasoning

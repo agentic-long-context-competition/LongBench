@@ -21,6 +21,18 @@ class AsyncOpenAIPlusPlus(AsyncOpenAI):
     - Supports limiting concurrency with an optional semaphore.
     """
 
+    # Custom class to intercept chat.completions.create calls
+    class EnhancedChatCompletions:
+        def __init__(self, parent_client):
+            self.parent_client = parent_client
+            self._original_completions = parent_client.chat.completions
+        
+        @property
+        def create(self):
+            async def create_wrapper(**kwargs):
+                return await self.parent_client.chat_completion(**kwargs)
+            return create_wrapper
+
     def __init__(self, request_id=None, logging_enabled=False, log_file_path="api_calls.jsonl", semaphore=None, **kwargs):
         """
         Initializes the enhanced OpenAI client.
@@ -43,6 +55,22 @@ class AsyncOpenAIPlusPlus(AsyncOpenAI):
 
         # Initialize token usage tracking
         self.token_usage = {}
+        
+        # Replace the standard chat.completions with our enhanced version
+        self._original_chat = self.chat
+        self._enhanced_completions = self.EnhancedChatCompletions(self)
+        
+        # Create a property for 'chat' that returns an object with our intercepted 'completions'
+        class EnhancedChat:
+            def __init__(self, parent):
+                self.parent = parent
+                self.completions = parent._enhanced_completions
+                # Copy all other attributes from the original chat
+                for attr_name in dir(parent._original_chat):
+                    if not attr_name.startswith('_') and attr_name != 'completions':
+                        setattr(self, attr_name, getattr(parent._original_chat, attr_name))
+                        
+        self.chat = EnhancedChat(self)
 
     @backoff.on_exception(
         backoff.expo,
@@ -73,10 +101,10 @@ class AsyncOpenAIPlusPlus(AsyncOpenAI):
         if self.semaphore:
             async with self.semaphore:
                 # Make the API call asynchronously using the parent class method
-                response = await self.chat.completions.create(**kwargs)
+                response = await self._original_chat.completions.create(**kwargs)
         else:
             # Make the API call without semaphore
-            response = await self.chat.completions.create(**kwargs)
+            response = await self._original_chat.completions.create(**kwargs)
 
         # Update token usage statistics
         self._update_token_usage(response)

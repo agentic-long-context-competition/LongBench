@@ -46,7 +46,6 @@ Chunk:
 Question: {question}"""
     
     response = await client.chat.completions.create(
-        model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,
         max_tokens=1024
@@ -65,7 +64,6 @@ Question: {question}
 Provide a concise summary:"""
     
     response = await client.chat.completions.create(
-        model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,
         max_tokens=1024
@@ -123,7 +121,6 @@ Follow these steps to answer the question:
 3. Provide your final answer in this format: "The correct answer is (insert answer here)" """
     
     response = await client.chat.completions.create(
-        model="gpt-4o-mini",
         messages=[{"role": "user", "content": final_prompt}],
         temperature=0.1,
         max_tokens=1024
