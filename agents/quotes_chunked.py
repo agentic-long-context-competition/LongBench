@@ -16,9 +16,19 @@ def split_into_chunks(context: str, chunk_size: int = 1000, overlap: int = 200) 
     
     return chunks
 
-async def extract_quotes_from_chunk(question: str, chunk: str, total_words: int, client: AsyncOpenAI) -> str:
+async def extract_quotes_from_chunk(question: str, chunk: str, total_words: int, client: AsyncOpenAI, choices: Dict[str, str] = None) -> str:
     """Extract relevant quotes from a single chunk with confidence estimates."""
-    prompt = f"""You are given a part of a very long text with {total_words} words. This chunk is approximately 1000 words, with a 200-word overlap with adjacent chunks. Multiple agents are processing different chunks in parallel. Your task is to extract relevant quotes from this chunk that help answer the following question: {question}.
+    choices_text = ""
+    if choices:
+        choices_text = f"""
+Choices:
+(A) {choices['choice_A']}
+(B) {choices['choice_B']}
+(C) {choices['choice_C']}
+(D) {choices['choice_D']}
+"""
+
+    prompt = f"""You are given a part of a very long text with {total_words} words. This chunk is approximately 1000 words, with a 200-word overlap with adjacent chunks. Multiple agents are processing different chunks in parallel. Your task is to extract relevant quotes from this chunk that help answer the following question: {question}.{choices_text}
 
 If you find relevant quotes, provide them with a brief explanation of why they are relevant and a confidence level (from 0 to 1). If there is no relevant information, state so with a confidence level.
 
@@ -69,7 +79,7 @@ async def process_long_context(question: str, context: str, choices: Dict[str, s
     chunks = split_into_chunks(context, chunk_size=1000, overlap=200)
     
     # Step 2: Process chunks in parallel
-    tasks = [extract_quotes_from_chunk(question, chunk, total_words, client) for chunk in chunks]
+    tasks = [extract_quotes_from_chunk(question, chunk, total_words, client, choices) for chunk in chunks]
     outputs = await asyncio.gather(*tasks)
     
     # Step 3: Collect relevant quotes
