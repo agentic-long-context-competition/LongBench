@@ -111,8 +111,9 @@ def unify_results(
         
         unified_results.append(unified_entry)
     
-    # Save the unified results to a JSON file
-    with open(output_file, 'w', encoding='utf-8') as f:
+    # Save the unified results to a JSON file in the results_dir
+    output_path = os.path.join(results_dir, output_file)
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump({
             "metadata": {
                 "agents": agent_names,
@@ -122,7 +123,7 @@ def unify_results(
             "results": unified_results
         }, f, ensure_ascii=False, indent=2)
     
-    print(f"Unified results saved to {output_file}")
+    print(f"Unified results saved to {output_path}")
     print(f"Total items: {len(unified_results)}")
     print("Error counts by agent:")
     for agent, count in error_counts.items():
