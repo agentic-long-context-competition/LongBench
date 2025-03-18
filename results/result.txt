@@ -2,4 +2,4 @@ Model	Overall	Easy	Hard	Short	Medium	Long	Errors
 oneshot	28.2	28.3	28.1	30.9	24.6	none	191
 cot	31.4	33.6	30.2	32.0	30.6	none	191
 quotes	34.3	36.3	33.2	36.0	32.1	none	191
-quotes_chunked	30.0	37.5	26.5	30.0	none	none	0
+quotes_chunked	30.0	25.0	32.4	30.0	none	none	0
