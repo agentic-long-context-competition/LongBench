@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LongBench Unified Results Schema",
+  "description": "Schema for the unified results from different agents in the LongBench evaluation",
+  "type": "object",
+  "required": ["metadata", "results"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["agents", "total_items", "error_counts"],
+      "properties": {
+        "agents": {
+          "type": "array",
+          "description": "List of agent names included in the results",
+          "items": {
+            "type": "string"
+          }
+        },
+        "total_items": {
+          "type": "integer",
+          "description": "Total number of evaluation items in the results"
+        },
+        "error_counts": {
+          "type": "object",
+          "description": "Count of errors for each agent",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "description": "Array of individual evaluation results",
+      "items": {
+        "type": "object",
+        "required": ["_id", "domain", "sub_domain", "difficulty", "length", "question"],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Unique identifier for the evaluation item"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Main domain/category of the task"
+          },
+          "sub_domain": {
+            "type": "string",
+            "description": "Sub-domain/category of the task"
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "Difficulty level of the task (e.g., 'easy', 'hard')",
+            "enum": ["easy", "hard"]
+          },
+          "length": {
+            "type": "string",
+            "description": "Length category of the task (e.g., 'short', 'medium', 'long')",
+            "enum": ["short", "medium", "long"]
+          },
+          "question": {
+            "type": "string",
+            "description": "The question posed in the evaluation item"
+          },
+          "choice_A": {
+            "type": "string",
+            "description": "Option A in multiple-choice questions"
+          },
+          "choice_B": {
+            "type": "string",
+            "description": "Option B in multiple-choice questions"
+          },
+          "choice_C": {
+            "type": "string",
+            "description": "Option C in multiple-choice questions"
+          },
+          "choice_D": {
+            "type": "string",
+            "description": "Option D in multiple-choice questions"
+          },
+          "context": {
+            "type": "string",
+            "description": "Context or background information provided for the question"
+          },
+          "answer": {
+            "type": "string",
+            "description": "The correct answer to the question"
+          }
+        },
+        "additionalProperties": {
+          "type": "object",
+          "description": "Agent-specific results",
+          "properties": {
+            "error": {
+              "type": "string",
+              "description": "Error message if the agent encountered an error during processing"
+            },
+            "pred": {
+              "type": ["string", "null"],
+              "description": "The agent's prediction or answer"
+            },
+            "judge": {
+              "type": "boolean",
+              "description": "Whether the agent's prediction is correct (true) or incorrect (false)"
+            },
+            "token_usage": {
+              "type": "object",
+              "description": "Token usage statistics for the model",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "prompt_tokens": {
+                    "type": "integer",
+                    "description": "Number of tokens in the prompt"
+                  },
+                  "completion_tokens": {
+                    "type": "integer",
+                    "description": "Number of tokens in the completion/response"
+                  },
+                  "total_tokens": {
+                    "type": "integer",
+                    "description": "Total number of tokens used"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} 
